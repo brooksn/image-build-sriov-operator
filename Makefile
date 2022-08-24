@@ -6,6 +6,8 @@ endif
 
 BUILD_META=-build$(shell date +%Y%m%d)
 ORG ?= rancher
+CREATED ?= $(shell date --iso-8601=s -u)
+REF ?= $(shell git symbolic-ref HEAD)
 # last commit on 2021-10-06
 TAG ?= v1.1.0$(BUILD_META)
 export DOCKER_BUILDKIT?=1
@@ -18,13 +20,19 @@ ifeq (,$(filter %$(BUILD_META),$(TAG)))
 $(error TAG needs to end with build metadata: $(BUILD_META))
 endif
 
+
 .PHONY: image-build-operator
 image-build-operator:
 	docker build \
-		--pull \
 		--build-arg ARCH=$(ARCH) \
 		--build-arg TAG=$(TAG:$(BUILD_META)=) \
 		--build-arg BUILD=$(BUILD_META) \
+		--build-arg GO_IMAGE=bcitest/hardened-build-base:v1.18.5b7 \
+		--build-arg BCI_IMAGE=registry.suse.com/bci/bci-base:latest \
+		--label "org.opencontainers.image.url=https://github.com/brooksn/image-build-sriov-operator" \
+		--label "org.opencontainers.image.created=$(CREATED)" \
+		--label "org.opencontainers.image.authors=brooksn" \
+		--label "org.opencontainers.image.ref.name=$(REF)" \
 		--target operator \
 		--tag $(ORG)/hardened-sriov-network-operator:$(TAG) \
 		--tag $(ORG)/hardened-sriov-network-operator:$(TAG)-$(ARCH) \
@@ -49,10 +57,15 @@ image-scan-operator:
 .PHONY: image-build-network-config-daemon
 image-build-network-config-daemon:
 	docker build \
-		--pull \
 		--build-arg ARCH=$(ARCH) \
 		--build-arg TAG=$(TAG:$(BUILD_META)=) \
 		--build-arg BUILD=$(BUILD_META) \
+		--build-arg GO_IMAGE=bcitest/hardened-build-base:v1.18.5b7 \
+		--build-arg BCI_IMAGE=registry.suse.com/bci/bci-base:latest \
+		--label "org.opencontainers.image.url=https://github.com/brooksn/image-build-sriov-operator" \
+		--label "org.opencontainers.image.created=$(CREATED)" \
+		--label "org.opencontainers.image.authors=brooksn" \
+		--label "org.opencontainers.image.ref.name=$(REF)" \
 		--target config-daemon \
 		--tag $(ORG)/hardened-sriov-network-config-daemon:$(TAG) \
 		--tag $(ORG)/hardened-sriov-network-config-daemon:$(TAG)-$(ARCH) \
@@ -77,10 +90,15 @@ image-scan-network-config-daemon:
 .PHONY: image-build-sriov-network-webhook
 image-build-sriov-network-webhook:
 	docker build \
-		--pull \
 		--build-arg ARCH=$(ARCH) \
 		--build-arg TAG=$(TAG:$(BUILD_META)=) \
 		--build-arg BUILD=$(BUILD_META) \
+		--build-arg GO_IMAGE=bcitest/hardened-build-base:v1.18.5b7 \
+		--build-arg BCI_IMAGE=registry.suse.com/bci/bci-base:latest \
+		--label "org.opencontainers.image.url=https://github.com/brooksn/image-build-sriov-operator" \
+		--label "org.opencontainers.image.created=$(CREATED)" \
+		--label "org.opencontainers.image.authors=brooksn" \
+		--label "org.opencontainers.image.ref.name=$(REF)" \
 		--target webhook \
 		--tag $(ORG)/hardened-sriov-network-webhook:$(TAG) \
 		--tag $(ORG)/hardened-sriov-network-webhook:$(TAG)-$(ARCH) \
